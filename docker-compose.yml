@@ -1,34 +1,122 @@
 version: '3.1'
 
 services:
-  ani_service:
+  ani_list_service:
     build:
-      context: .
+      context: ./../anime_list/
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     volumes:
-      - .:/usr/src/app/
+      - ./../anime_list/:/usr/src/app/
+
 
     environment:
-      - MONGO_DB_URI=ani_db://ani_db:27017
+      - MONGO_DB_URI=ani_list://ani_list:27017
 
     depends_on:
-      - ani_db
+      - ani_list
     networks:
-      - ani_network
+      - ani_list_network
 
-  ani_db:
+
+#  ani_users_service:
+#    build:
+#      context: ./../anime_users/
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8081:8081"
+#    volumes:
+#      - ./../anime_users/:/usr/src/app/
+#
+#
+#    environment:
+#      - MONGO_DB_URI=ani_users://ani_users:27017
+#
+#    depends_on:
+#      - ani_users
+#    networks:
+#      - ani_users_network
+
+#  ani_ratings_service:
+#    build:
+#      context: ./../anime_ratings/
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8082:8082"
+#    volumes:
+#      - ./../anime_ratings/:/usr/src/app/
+#
+#
+#    environment:
+#      - MONGO_DB_URI=ani_rating://ani_rating:27017
+#
+#    depends_on:
+#      - ani_rating
+#    networks:
+#      - ani_rating_network
+
+  ani_list:
     image: mongo:3.4
     restart: unless-stopped
-    container_name: ani_db
+    container_name: ani_list
+    ports:
+      - '27017:27017'
     volumes:
-      - ani-data:/data/db
+      - ani_data:/data/db
       - ./../AnimeList.csv:/data/db/AnimeList.csv
     networks:
-      - ani_network
+      - ani_list_network
+
+  mongo_list_seed:
+    build:
+      context: .
+      dockerfile: Docekrfile_list
+    links:
+      - ani_list
+    networks:
+      - ani_list_network
+
+
+  ani_users:
+    image: mongo:3.4
+    restart: unless-stopped
+    container_name: ani_users
+    ports:
+      - '27018:27017'
+    volumes:
+      - ani_users_data:/data/db
+      - ./../UserList.csv:/data/db/UserList.csv
+    networks:
+      - ani_users_network
+
+  mongo_users_seed:
+    build:
+      context: .
+      dockerfile: Docekrfile_users
+    links:
+      - ani_users
+    networks:
+      - ani_users_network
+#
+#  ani_rating:
+#    image: mongo:3.4
+#    restart: unless-stopped
+#    container_name: ani_rating
+#    ports:
+#      - '27019:27017'
+#    volumes:
+#      - ani_rating_data:/data/db
+#      - ./../AnimeList.csv:/data/db/AnimeList.csv
+#    networks:
+#      - ani_rating_network
 
 networks:
-  ani_network:
+  ani_list_network:
+  ani_users_network:
+  ani_rating_network:
 
 volumes:
-  ani-data:
+  ani_data:
+  ani_users_data:
+  ani_rating_data:

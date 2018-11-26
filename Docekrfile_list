@@ -1,0 +1,4 @@
+FROM mongo
+
+COPY AnimeList.csv ./AnimeList.csv
+CMD mongoimport --host ani_list --db animelist --collection animes --type csv --file /AnimeList.csv --headerline

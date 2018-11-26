@@ -1,0 +1,4 @@
+FROM mongo
+
+COPY UserList.csv ./UserList.csv
+CMD mongoimport --host ani_users --db aniusers --collection users --type csv --file /UserList.csv --headerline
