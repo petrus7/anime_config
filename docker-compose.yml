@@ -6,13 +6,14 @@ services:
       context: ./../anime_list/
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8080:5000"
     volumes:
       - ./../anime_list/:/usr/src/app/
 
 
     environment:
-      - MONGO_DB_URI=ani_list://ani_list:27017
+      - MONGO_DB_URI=mongodb://ani_list:27017
+      - FLASK_APP=/usr/src/app/run.py
 
     depends_on:
       - ani_list
@@ -20,23 +21,24 @@ services:
       - ani_list_network
 
 
-#  ani_users_service:
-#    build:
-#      context: ./../anime_users/
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8081:8081"
-#    volumes:
-#      - ./../anime_users/:/usr/src/app/
-#
-#
-#    environment:
-#      - MONGO_DB_URI=ani_users://ani_users:27017
-#
-#    depends_on:
-#      - ani_users
-#    networks:
-#      - ani_users_network
+  ani_users_service:
+    build:
+      context: ./../anime_users/
+      dockerfile: Dockerfile
+    ports:
+      - "8081:5000"
+    volumes:
+      - ./../anime_users/:/usr/src/app/
+
+
+    environment:
+      - MONGO_DB_URI=mongodb://ani_users:27017
+      - FLASK_APP=/usr/src/app/run.py
+
+    depends_on:
+      - ani_users
+    networks:
+      - ani_users_network
 
 #  ani_ratings_service:
 #    build:
@@ -89,7 +91,7 @@ services:
       - ./../UserList.csv:/data/db/UserList.csv
     networks:
       - ani_users_network
-
+  
   mongo_users_seed:
     build:
       context: .
