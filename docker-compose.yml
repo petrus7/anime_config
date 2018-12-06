@@ -14,6 +14,11 @@ services:
     environment:
       - MONGO_DB_URI=mongodb://ani_list:27017
       - FLASK_APP=/usr/src/app/run.py
+      - CONFIG_CLASS_NAME=DevelopmentConfig
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+      - DB_USER=autea_dev
+      - DB_PWD=autea123
 
     depends_on:
       - ani_list
@@ -34,29 +39,36 @@ services:
     environment:
       - MONGO_DB_URI=mongodb://ani_users:27017
       - FLASK_APP=/usr/src/app/run.py
+      - CONFIG_CLASS_NAME=DevelopmentConfig
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
 
     depends_on:
       - ani_users
     networks:
       - ani_users_network
 
-#  ani_ratings_service:
-#    build:
-#      context: ./../anime_ratings/
-#      dockerfile: Dockerfile
-#    ports:
-#      - "8082:8082"
-#    volumes:
-#      - ./../anime_ratings/:/usr/src/app/
-#
-#
-#    environment:
-#      - MONGO_DB_URI=ani_rating://ani_rating:27017
-#
-#    depends_on:
-#      - ani_rating
-#    networks:
-#      - ani_rating_network
+  ani_user_lists_service:
+    build:
+      context: ./../anime_ratings/
+      dockerfile: Dockerfile
+    ports:
+      - "8082:5000"
+    volumes:
+      - ./../anime_ratings/:/usr/src/app/
+
+
+    environment:
+      - MONGO_DB_URI=mongodb://ani_user_lists:27017
+      - FLASK_APP=/usr/src/app/run.py
+      - CONFIG_CLASS_NAME=DevelopmentConfig
+      - FLASK_ENV=development
+      - FLASK_DEBUG=1
+
+    depends_on:
+      - ani_user_lists
+    networks:
+      - ani_user_lists_network
 
   ani_list:
     image: mongo:3.4
@@ -66,16 +78,7 @@ services:
       - '27017:27017'
     volumes:
       - ani_data:/data/db
-      - ./../AnimeList.csv:/data/db/AnimeList.csv
-    networks:
-      - ani_list_network
-
-  mongo_list_seed:
-    build:
-      context: .
-      dockerfile: Docekrfile_list
-    links:
-      - ani_list
+      - .:/data/db/data
     networks:
       - ani_list_network
 
@@ -88,37 +91,29 @@ services:
       - '27018:27017'
     volumes:
       - ani_users_data:/data/db
-      - ./../UserList.csv:/data/db/UserList.csv
+      - .:/data/db/data
     networks:
       - ani_users_network
-  
-  mongo_users_seed:
-    build:
-      context: .
-      dockerfile: Docekrfile_users
-    links:
-      - ani_users
+
+
+  ani_user_lists:
+    image: mongo:3.4
+    restart: unless-stopped
+    container_name: ani_user_lists
+    ports:
+      - '27019:27017'
+    volumes:
+      - ani_user_lists_data:/data/db
+      - .:/data/db/data
     networks:
-      - ani_users_network
-#
-#  ani_rating:
-#    image: mongo:3.4
-#    restart: unless-stopped
-#    container_name: ani_rating
-#    ports:
-#      - '27019:27017'
-#    volumes:
-#      - ani_rating_data:/data/db
-#      - ./../AnimeList.csv:/data/db/AnimeList.csv
-#    networks:
-#      - ani_rating_network
+      - ani_user_lists_network
 
 networks:
   ani_list_network:
   ani_users_network:
-  ani_rating_network:
+  ani_user_lists_network:
 
 volumes:
   ani_data:
   ani_users_data:
-  ani_rating_data:
+  ani_user_lists_data:
