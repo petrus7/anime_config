@@ -9,6 +9,8 @@ services:
       - "8080:5000"
     volumes:
       - ./../anime_list/:/usr/src/app/
+     
+        
 
 
     environment:
@@ -19,11 +21,15 @@ services:
       - FLASK_DEBUG=1
       - DB_USER=autea_dev
       - DB_PWD=autea123
+      - USER_SERVICE_URL=http://192.168.1.107:8081
+      - USERLIST_SERVICE_URL=http://192.168.1.107:8082
 
     depends_on:
       - ani_list
     networks:
-      - ani_list_network
+      - ani_user_lists_network
+    links:
+      - ani_users_service
 
 
   ani_users_service:
@@ -46,7 +52,7 @@ services:
     depends_on:
       - ani_users
     networks:
-      - ani_users_network
+      - ani_user_lists_network
 
   ani_user_lists_service:
     build:
@@ -80,7 +86,7 @@ services:
       - ani_data:/data/db
       - .:/data/db/data
     networks:
-      - ani_list_network
+      - ani_user_lists_network
 
 
   ani_users:
@@ -93,7 +99,7 @@ services:
       - ani_users_data:/data/db
       - .:/data/db/data
     networks:
-      - ani_users_network
+      - ani_user_lists_network
 
 
   ani_user_lists:
@@ -110,8 +116,12 @@ services:
 
 networks:
   ani_list_network:
-  ani_users_network:
+    driver: bridge
+  ani_users_network:    
+    driver: bridge
   ani_user_lists_network:
+    driver: bridge
+    
 
 volumes:
   ani_data:
